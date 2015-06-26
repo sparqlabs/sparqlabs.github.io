@@ -1,0 +1,105 @@
+<html>
+<head>
+<title>SparQ Equipment Guides</title>
+<link href="css/style.css" rel="stylesheet">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+  function menu() {
+    $('#topper').load("topper.html");
+    $('#footer').load("footer.html");
+  }
+</script>
+</head>
+<body onload="menu()">
+
+	<div id="topper">
+  </div>
+
+	<div class="title">
+		Slicing with Skeinforge for Duplicator 4
+	</div>
+
+	<div class="main">
+		
+		<p>In order to change a 3d file into something that the Duplicator 4 can print, we have to slice it. Slicing will generate gcode specific for this machine based on settings we have set. The controller on the machine uses the instructions from the gcode to then move the motors, control the temperature.
+		</p>
+
+		<p>Replicator G is the host software that we will be using. This software is able to control the Duplicator 4, as well as has Skeinforge built in to slice models.
+		</p>
+
+		<p>There are other options out there, using Replicator G and Skeinforge is just one of the ways. When investigating the other ways, make sure that it is compatible with the firmware running on the Duplicator 4, which is Sailfish.</p>
+
+		<p><a href="http://reprap.org/wiki/File:RepRap_Toolchain.jpg" target="_blank">Here</a> is a good image detailing the toolchain options for RepRaps.</p>
+
+		<p>The below settings and info was made for use with PLA filament. For other filament like NinjaFlex and ABS, you may have to change a few of the settings.</p>
+
+		<h4>Step 1</h4>
+
+		<p>Download & install <a href="http://replicat.org/" target="_blank">Replicator G</a></p>
+
+		<p>Go to Machine -> Machine Type (Driver) and set it to The Replicator Dual</p>
+
+		<h4>Step 2</h4>
+
+		<p>Download <a href="downloads/SparQ_Wanhao.zip" target="_blank">SparQ_Wanhao Skeinforge profile</a></p>
+
+		<p>Install it to here:<br><br>
+			Windows:<br>
+			/Users/[USERNAME]/.replicatorg/sf_[VER]_profiles/<br>
+ 			<br>
+			Mac:<br>
+			~/.replicatorg/sf_[VER]_profiles/</p>
+
+		<h4>Step 3</h4>
+
+		<p>Set the Print-O-Matic settings:</p>
+
+		<ul>
+			<li> Slicing Profile: SparQ Wanhao</li>
+			<li> Settings tab -> Print temperature: 190</li>
+			<li> Settings tab -> Feed rate: 70</li>
+			<li> Settings tab -> Travel feedrate: 90</li>
+			<li> Plastic tab -> Filament diameter: 1.8</li>
+		</ul>
+
+		<br>
+
+		<h4>Step 4</h4>
+
+		<p>The temperature of the build platform can be changed in the gcode. So you'll be able to see it after you slice a model. Find this line near the top and change S50 to whichever value you would want- like S110 for 110.</p>
+
+		<ul>
+			<li> M109 S50 T0 (set HBP temperature)</li>
+		</ul>
+
+		<br>
+
+		<hr>
+
+		<h3>Calibration</h3>
+
+		<p>Here is how the machine was calibrated to create the Skeinforge profile. I made small adjustments and would print a partial test cube. Started out by making fure the first layers printed well, then checking the infill and layer alignment, then the final top layers and surface finish.</p>
+
+		<img src="images/test_prints/test_prints_2.jpg" />
+		
+		<img src="images/test_prints/test_prints_3.jpg" />
+
+		<img src="images/test_prints/test_prints_4.jpg" />
+
+		<p>If you ever need to quickly adjust some of the settings because the PLA isn't extruding properly, try first increasing the <i>extruder temperature</i>. The <i>filament diameter</i> can also be changed to adjust the effective flow rate from within the Print-o-matic settings. Big changes for this are not recommended though.</p>
+
+		<hr>
+
+		<h3>Next</h3>
+
+		<p>Next up check out the <a href="duplicator_levelling.html">levelling routine</a> and an <a href="http://gcode.ws" target="_blank">online gcode viewer</a> to see how the model was sliced</p>
+
+	</div>
+
+	<div id="footer">
+  </div>
+
+</body>
+</html>

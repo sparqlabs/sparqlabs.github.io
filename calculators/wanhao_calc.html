@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>SparQ Labs - Wanhao Print Calculator</title>
+
+<!-- http://www.javaworld.com/article/2077176/scripting-jvm-languages/using-javascript-and-forms.html?page=2 -->
+
+	<link rel="stylesheet" href="bootstrap.min.css">
+<!--
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+-->
+
+<script>
+function displayVals() {
+
+	var str = [];
+
+	str[0] = "Machine cost per min: $" + machineCostPerMin().toPrecision(2);
+	str[1] = "PLA cost per gram: $" + rawMaterialsCost(0).toPrecision(2);
+	str[2] = "ABS cost per gram: $" + rawMaterialsCost(1).toPrecision(2);
+	str[3] = "Cost for help with operator: $" + operatorTimeCost().toFixed(2);
+	str[4] = "Yield cost per min: $" + machineYieldCost(true).toPrecision(2);
+	str[5] = "Yield cost per job: $" + machineYieldCost(false).toPrecision(2);
+
+	for(i=0; i<str.length; i++) {
+		var node = document.createElement("li");
+		node.className = "list-group-item";
+		node.appendChild(document.createTextNode(str[i]));
+		document.getElementById("vals").appendChild(node);
+	}
+
+}
+
+function machineCostPerMin() {
+	
+	var machine_cost = 1000;
+	var life_years = 2;
+	var life_hours = life_years*365*24;
+	var days_school_year = 30*8;
+	var hours_used_per_day = 4; // this may have to change up/down
+	var hours_used_per_sch_year = hours_used_per_day*days_school_year;
+	var hours_lifecycle = hours_used_per_sch_year*life_years;
+	var cost_per_hour = machine_cost/hours_lifecycle;
+	var cost_per_min = cost_per_hour/60;
+
+	return cost_per_min;
+}
+
+function rawMaterialsCost(filament) {
+
+	if(filament == 0) { //PLA
+
+		var price_spool = 35;
+		var additional_cost = 20; // like shipping, exchange rate, etc
+		var spool_weight = 1000;
+		var cost_per_gram = (price_spool+additional_cost)/spool_weight;
+
+	} else if(filament == 1) { // ABS
+
+		var price_spool = 35;
+		var additional_cost = 20; // like shipping, exchange rate, etc
+		var spool_weight = 1000;
+		var cost_per_gram = (price_spool+additional_cost)/spool_weight;
+
+	}
+
+	return cost_per_gram;
+
+}
+
+function operatorTimeCost() {
+
+	var job_setup_mins = 15; // might need to change this depending on actual time
+	var remove_print_mins = 5;
+	var total_mins = job_setup_mins+remove_print_mins;
+	var op_per_hour_cost = 7; // arbitrary amount to assign value to time
+	var cost_per_job = (total_mins/60)*op_per_hour_cost;
+
+	return cost_per_job;
+
+}
+
+function machineYieldCost(per_min) {
+
+	var yield_percent = 10; // how much of the time there is a failed print
+	var yield_cost_per_min = (machineCostPerMin()*yield_percent)/100;
+	var yield_cost_per_job = (operatorTimeCost()*yield_percent)/100;
+
+	if(per_min) { // specifiy yield cost per minute
+		return yield_cost_per_min;
+	} else { // specify yield cost per job
+		return yield_cost_per_job;
+	}
+
+}
+
+function calculate(form) {
+
+	var member_name = form.elements.namedItem("member_name").value;
+	var radiosm = form.elements.namedItem("radm");
+	var member = 1;
+
+	if(member_name == null || member_name == "") member_name = "SparQ visitor";
+
+	if(radiosm.value == "member_yes") {
+		member = 1;
+	} else if(radiosm.value == "member_no") {
+		member = 0;
+	}
+
+	// ---
+
+	var radios0 = form.elements.namedItem("rad0");
+	var lab_filament = 1;
+
+	if(radios0.value == "lab_fila_yes") {
+		lab_filament = 1;
+	} else if(radios0.value == "lab_fila_no") {
+		lab_filament = 0;
+	}
+
+	var fil_chosen = form.elements.namedItem("filament_choice").selectedIndex;
+   	
+    var fil_density;
+	
+	if(fil_chosen == 0) fil_density = 1.24;
+	if(fil_chosen == 1) fil_density = 1.03;
+
+	// ---
+
+	var piece_units = form.elements.namedItem("piece_units").selectedIndex;
+	var piece_value = form.elements.namedItem("piece_value").value;
+
+	if(isNaN(piece_value)) {
+		alert("Needs to be a number");
+		form.elements.namedItem("piece_value").value = "";
+	}
+
+	var grams = 0;
+
+	if(piece_units == 0) grams = piece_value*fil_density;
+	if(piece_units == 1) {
+		grams = piece_value;
+	}
+
+	// ---
+
+	var print_time = form.elements.namedItem("print_time").value;
+
+	if(isNaN(print_time)) {
+		alert("Needs to be a number");
+		form.elements.namedItem("print_time").value = "";
+	}
+
+	var radios = form.elements.namedItem("rad");
+	var operator_help = 1;
+
+	if(radios.value == "op_help_yes") {
+		operator_help = 1;
+	} else if(radios.value == "op_help_no") {
+		operator_help = 0;
+	}
+
+	// ---
+
+	var total_mat_cost = grams*rawMaterialsCost(fil_chosen);
+	total_mat_cost *= lab_filament;
+	var total_machine_time_cost = print_time*machineCostPerMin();
+	var total_operator_cost = operator_help*operatorTimeCost();
+	var total_yield_cost = print_time*machineYieldCost(true) + machineYieldCost(false);
+
+	var grand_total = total_mat_cost+total_machine_time_cost+total_operator_cost+total_yield_cost;
+
+	var all_complete = true;
+
+	if(print_time == null || print_time == "") all_complete = false;
+	if(piece_value == null || piece_value == "") all_complete = false;
+
+	var str = [];
+
+	str[0] = "Material cost: $" + total_mat_cost.toFixed(2);
+	str[1] = "Machine time cost: $" + total_machine_time_cost.toFixed(2);
+	str[2] = "Operator cost: $" + total_operator_cost.toFixed(2);
+	str[3] = "Yield cost: $" + total_yield_cost.toFixed(2);
+	//str[4] = "Grand total: $" + grand_total.toFixed(2);
+
+
+	if(all_complete) {
+
+		document.getElementById("totals").innerHTML = "";
+
+		for(i=0; i<str.length; i++) {
+			var node = document.createElement("li");
+			node.className = "list-group-item";
+			node.appendChild(document.createTextNode(str[i]));
+			document.getElementById("totals").appendChild(node);
+		}
+
+	    document.getElementById("total_title").innerHTML = "Total print cost: $" + grand_total.toFixed(2);
+
+	    var upsell_str = "";
+	    if(member == 0) {
+	    	upsell_str = "You should become a member!"
+	    }
+
+	    document.getElementById("thankyou").innerHTML = "Thank you for your business, " + member_name +"!<br>" + upsell_str;
+
+	}
+
+}
+</script>
+
+
+
+</head>
+<body onLoad="displayVals()">
+
+<div class="container">
+
+
+
+<h1 class="page-header">SparQ Labs - Wanhao Print Calculator</h1>
+
+<p class="lead">Use this calculator for prints fabricated with the Wanhao Duplicator 4. You will need to know the mass or volume of your print, and an estimated time.</p>
+
+
+<h3>Machine status: 
+<span class="label label-success">Working</span>
+<!--<span class="label label-warning">Having issues</span>-->
+<!--<span class="label label-danger">Non-operational</span>-->
+</h3>
+
+<br>
+
+<h4>Current machine costs:</h4>
+<ul id="vals" class="list-group">
+</ul>
+
+
+<br><br>
+
+
+<form id="quote_form" action="">
+
+<h4>Are you a member of SparQ Labs?</h4>
+<br>
+
+<div class="well well-sm">
+	<label class="radio-inline"><input type="radio" name="radm" value="member_yes" CHECKED onClick=0 onChange="calculate(this.form)">Yes</label>
+
+	<label class="radio-inline"><input type="radio" name="radm" value="member_no" onClick=0 onChange="calculate(this.form)">No</label>
+</div>
+
+<br><br>
+
+<div class="input-group">
+	<input type="text" name="member_name" onchange="calculate(this.form)" class="form-control" placeholder="Your name">
+	<span class="input-group-addon"></span>
+</div>
+
+
+<br><br>
+
+
+<h4>Using lab filament?</h4>
+<br>
+
+<div class="well well-sm">
+	<label class="radio-inline"><input type="radio" name="rad0" value="lab_fila_yes" CHECKED onClick=0 onChange="calculate(this.form)">Yes</label>
+
+	<label class="radio-inline"><input type="radio" name="rad0" value="lab_fila_no" onClick=0 onChange="calculate(this.form)">No</label>
+</div>
+
+<br><br>
+
+
+<h4>Filament type</h4>
+<br>
+
+<select name="filament_choice" onchange="calculate(this.form)" class="form-control">
+  <option value="pla">PLA (1.24 g/cm^3)</option>
+  <option value="abs">ABS (1.03 g/cm^3)</option>
+</select>
+
+
+<br><br>
+
+
+<h4>3D piece volume (cm<sup>3</sup>) or mass (g)</h4> 
+<br>
+
+<select name="piece_units" onchange="calculate(this.form)" class="form-control">
+  <option value="volume">cm^3</option>
+  <option value="mass">g</option>
+</select>
+
+<br><br>
+
+<div class="input-group">
+	<input type="text" name="piece_value" onchange="calculate(this.form)" class="form-control" placeholder="Amount">
+	<span class="input-group-addon"></span>
+</div>
+
+<br><br>
+
+
+<h4>Print time (mins)</h4>
+<br>
+<div class="input-group">
+	<input type="text" name="print_time" onchange="calculate(this.form)" class="form-control" placeholder="Time">
+	<span class="input-group-addon">mins</span>
+</div>
+
+
+<br><br>
+
+
+<h4>Did a SparQ Member help you?</h4>
+<br>
+
+<div class="well well-sm">
+	<label class="radio-inline"><input type="radio" name="rad" value="op_help_yes" CHECKED onClick=0 onChange="calculate(this.form)">Yes</label>
+
+	<label class="radio-inline"><input type="radio" name="rad" value="op_help_no" onClick=0 onChange="calculate(this.form)">No</label>
+</div>
+
+<br><br>
+
+<div class="input-group">
+	<input type="text" name="helper_name" onchange="calculate(this.form)" class="form-control" placeholder="Their name">
+	<span class="input-group-addon"></span>
+</div>
+
+
+<br><br>
+
+<button type="button" name="button" value="Calculate" onClick="calculate(this.form)" class="btn btn-default">Calculate</button>
+
+</form>
+
+
+<br><br>
+
+
+<h3 id="total_title"></h3>
+<ul id="totals" class="list-group">
+</ul>
+<h4 id="thankyou"></h4>
+
+<br><br>
+
+
+</div>
+
+</body>
+</html>

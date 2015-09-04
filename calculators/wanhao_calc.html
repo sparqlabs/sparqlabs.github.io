@@ -106,7 +106,10 @@ function machineYieldCost(per_min) {
 
 function calculate(form) {
 
+	// -- member/person info
+
 	var member_name = form.elements.namedItem("member_name").value;
+	var member_email = form.elements.namedItem("member_email").value;
 	var radiosm = form.elements.namedItem("radm");
 	var member = 1;
 
@@ -118,7 +121,7 @@ function calculate(form) {
 		member = 0;
 	}
 
-	// ---
+	// --- own filament or lab filament
 
 	var radios0 = form.elements.namedItem("rad0");
 	var lab_filament = 1;
@@ -136,7 +139,7 @@ function calculate(form) {
 	if(fil_chosen == 0) fil_density = 1.24;
 	if(fil_chosen == 1) fil_density = 1.03;
 
-	// ---
+	// --- mass or vol of the piece
 
 	var piece_units = form.elements.namedItem("piece_units").selectedIndex;
 	var piece_value = form.elements.namedItem("piece_value").value;
@@ -153,7 +156,7 @@ function calculate(form) {
 		grams = piece_value;
 	}
 
-	// ---
+	// --- print time estimate
 
 	var print_time = form.elements.namedItem("print_time").value;
 
@@ -161,6 +164,8 @@ function calculate(form) {
 		alert("Needs to be a number");
 		form.elements.namedItem("print_time").value = "";
 	}
+
+	// --- operator help
 
 	var radios = form.elements.namedItem("rad");
 	var operator_help = 1;
@@ -171,7 +176,19 @@ function calculate(form) {
 		operator_help = 0;
 	}
 
-	// ---
+	// --- happy with result
+
+	var radios = form.elements.namedItem("radl");
+	var happy_result = 1;
+	var result_comments = form.elements.namedItem("result_comments").value;
+
+	if(radios.value == "happy_result_yes") {
+		happy_result = 1;
+	} else if(radios.value == "happy_result_no") {
+		happy_result = 0;
+	}
+
+	// --- calculations
 
 	var total_mat_cost = grams*rawMaterialsCost(fil_chosen);
 	total_mat_cost *= lab_filament;
@@ -194,6 +211,7 @@ function calculate(form) {
 	str[3] = "Yield cost: $" + total_yield_cost.toFixed(2);
 	//str[4] = "Grand total: $" + grand_total.toFixed(2);
 
+	// --- display results now
 
 	if(all_complete) {
 
@@ -261,10 +279,17 @@ function calculate(form) {
 	<label class="radio-inline"><input type="radio" name="radm" value="member_no" onClick=0 onChange="calculate(this.form)">No</label>
 </div>
 
-<br><br>
+<br>
 
 <div class="input-group">
 	<input type="text" name="member_name" onchange="calculate(this.form)" class="form-control" placeholder="Your name">
+	<span class="input-group-addon"></span>
+</div>
+
+<br>
+
+<div class="input-group">
+	<input type="text" name="member_email" onchange="calculate(this.form)" class="form-control" placeholder="Email">
 	<span class="input-group-addon"></span>
 </div>
 
@@ -280,6 +305,7 @@ function calculate(form) {
 
 	<label class="radio-inline"><input type="radio" name="rad0" value="lab_fila_no" onClick=0 onChange="calculate(this.form)">No</label>
 </div>
+
 
 <br><br>
 
@@ -304,12 +330,13 @@ function calculate(form) {
   <option value="mass">g</option>
 </select>
 
-<br><br>
+<br>
 
 <div class="input-group">
 	<input type="text" name="piece_value" onchange="calculate(this.form)" class="form-control" placeholder="Amount">
 	<span class="input-group-addon"></span>
 </div>
+
 
 <br><br>
 
@@ -334,7 +361,7 @@ function calculate(form) {
 	<label class="radio-inline"><input type="radio" name="rad" value="op_help_no" onClick=0 onChange="calculate(this.form)">No</label>
 </div>
 
-<br><br>
+<br>
 
 <div class="input-group">
 	<input type="text" name="helper_name" onchange="calculate(this.form)" class="form-control" placeholder="Their name">
@@ -343,6 +370,24 @@ function calculate(form) {
 
 
 <br><br>
+
+
+<h4>Happy with the result?</h4>
+<br>
+
+<div class="well well-sm">
+	<label class="radio-inline"><input type="radio" name="radl" value="happy_result_yes" CHECKED onClick=0 onChange="calculate(this.form)">Yes</label>
+
+	<label class="radio-inline"><input type="radio" name="radl" value="happy_result_no" onClick=0 onChange="calculate(this.form)">No</label>
+</div>
+
+<br>
+
+<textarea class="form-control" rows="3" placeholder="Comments" name="result_comments"></textarea>
+
+
+<br><br>
+
 
 <button type="button" name="button" value="Calculate" onClick="calculate(this.form)" class="btn btn-default">Calculate</button>
 

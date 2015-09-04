@@ -231,7 +231,27 @@ function calculate(form) {
 
 	    document.getElementById("thankyou").innerHTML = "Thank you for your business, " + member_name +"!<br>" + upsell_str;
 
+	    // setting the hidden fields
+		form.elements.namedItem("total_grand").value = grand_total.toFixed(2);
+		form.elements.namedItem("total_mat").value = total_mat_cost.toFixed(2);
+		form.elements.namedItem("total_machine_time").value = total_machine_time_cost.toFixed(2);
+		form.elements.namedItem("total_op").value = total_operator_cost.toFixed(2);
+		form.elements.namedItem("total_yield").value = total_yield_cost.toFixed(2);
+
+		return true;
+
 	}
+
+	return false;
+
+}
+
+function submitForm(form) {
+	
+	// to start php webserver
+	// php -S 127.0.0.1:8080 -t .
+
+	if( calculate(form) ) form.submit();
 
 }
 </script>
@@ -266,7 +286,7 @@ function calculate(form) {
 <br><br>
 
 
-<form id="quote_form" action="">
+<form id="quote_form" action="submit_makerbot.php" method="post">
 
 <h4>Are you a member of SparQ Labs?</h4>
 <br>
@@ -385,8 +405,15 @@ function calculate(form) {
 
 <br><br>
 
+<!-- hidden inputs for POST -->
+<input type="hidden" name="total_grand" value="">
+<input type="hidden" name="total_mat" value="">
+<input type="hidden" name="total_machine_time" value="">
+<input type="hidden" name="total_op" value="">
+<input type="hidden" name="total_yield" value="">
 
-<button type="button" name="button" value="Calculate" onClick="calculate(this.form)" class="btn btn-default">Calculate</button>
+
+<button type="button" name="button" value="Calculate" onClick="submitForm(this.form)" class="btn btn-default">Calculate</button>
 
 </form>
 

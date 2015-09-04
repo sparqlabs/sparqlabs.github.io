@@ -214,6 +214,7 @@ function calculate(form) {
 	if(all_complete) {
 
 		document.getElementById("totals").innerHTML = "";
+		document.getElementById("warnings").innerHTML = ""
 
 		for(i=0; i<str.length; i++) {
 			var node = document.createElement("li");
@@ -239,6 +240,10 @@ function calculate(form) {
 		form.elements.namedItem("total_yield").value = total_yield_cost.toFixed(2);
 
 		return true;
+
+	} else {
+
+		document.getElementById("warnings").innerHTML = "Please complete all fields!"
 
 	}
 
@@ -416,6 +421,10 @@ function submitForm(form) {
 <button type="button" name="button" value="Calculate" onClick="submitForm(this.form)" class="btn btn-default">Calculate</button>
 
 </form>
+
+<br>
+
+<p id="warnings"></p>
 
 
 <br><br>

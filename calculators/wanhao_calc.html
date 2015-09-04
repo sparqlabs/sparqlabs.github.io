@@ -216,6 +216,7 @@ function calculate(form) {
 	if(all_complete) {
 
 		document.getElementById("totals").innerHTML = "";
+		document.getElementById("warnings").innerHTML = "";
 
 		for(i=0; i<str.length; i++) {
 			var node = document.createElement("li");
@@ -232,6 +233,10 @@ function calculate(form) {
 	    }
 
 	    document.getElementById("thankyou").innerHTML = "Thank you for your business, " + member_name +"!<br>" + upsell_str;
+
+	} else {
+
+		document.getElementById("warnings").innerHTML = "Please complete all fields!"
 
 	}
 
@@ -392,6 +397,10 @@ function calculate(form) {
 <button type="button" name="button" value="Calculate" onClick="calculate(this.form)" class="btn btn-default">Calculate</button>
 
 </form>
+
+<br>
+
+<p id="warnings"></p>
 
 
 <br><br>
